@@ -5,7 +5,14 @@ import numpy as np
 import tapnet.utils as utils
 from tapnet.tapir_inference import TapirInference
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+if torch.cuda.is_available():
+    device_name = 'cuda'
+if torch.backends.mps.is_available():
+    device_name = 'mps'
+else:
+    device_name = 'cpu'
+
+device = torch.device(device_name)
 
 if __name__ == '__main__':
     input_size = 480

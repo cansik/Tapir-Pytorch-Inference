@@ -45,8 +45,17 @@ def map_coordinates_2d(feats: torch.Tensor, coordinates: torch.Tensor) -> torch.
     y = 2 * (y / torch.tensor(x.shape[2:], device=y.device)) - 1
     y = torch.flip(y, dims=(-1,)).float()
 
+    padding_mode='border'
+
+    if torch.backends.mps.is_available():
+        # Change padding mode to zeros as described here:
+        # https://github.com/pytorch/pytorch/issues/125098#issuecomment-2270384282
+        padding_mode = 'zeros'
+        x = x.clamp(-1, 1)
+        y = y.clamp(-1, 1)
+
     out = F.grid_sample(
-        x, y, mode='bilinear', align_corners=False, padding_mode='border'
+        x, y, mode='bilinear', align_corners=False, padding_mode=padding_mode
     )
     out = out.squeeze(dim=-1)
     out = out.permute(0, 2, 1)
